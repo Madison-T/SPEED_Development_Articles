@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 export default function SubmissionForm() {
   const { register, handleSubmit } = useForm();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = (data: any) => {
     console.log(JSON.stringify(data));
   };

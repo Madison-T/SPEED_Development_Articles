@@ -1,6 +1,7 @@
 import React from "react";
 interface SortableTableProps {
  headers: { key: string; label: string }[];
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
  data: any[];
 }
 const SortableTable: React.FC<SortableTableProps> = ({ headers, data }) => (
