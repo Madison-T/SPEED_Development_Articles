@@ -9,7 +9,7 @@ export default function SubmissionForm() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, data);
+      await axios.post(`${process.env.BACKEND_URL_URL}/api/articles`, data);
       alert("Article submitted successfully!");
       reset(); // Clear the form after successful submission
     } catch (error) {
