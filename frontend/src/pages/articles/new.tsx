@@ -1,5 +1,7 @@
+// src/pages/articles/new.tsx
 import { FormEvent, useState } from "react";
 import formStyles from "../../styles/Form.module.scss";
+import axios from "axios";
 
 const NewArticle = () => {
   const [title, setTitle] = useState("");
@@ -9,24 +11,32 @@ const NewArticle = () => {
   const [doi, setDoi] = useState("");
   const [claim, setClaim] = useState("");
   const [evidence, setEvidence] = useState("");
-  const [volume, setVolume] = useState("");   // Added volume
-  const [pages, setPages] = useState("");     // Added pages
+  const [volume, setVolume] = useState("");
+  const [pages, setPages] = useState("");
+  const [sePractice, setSePractice] = useState(""); // Added SE Practice field
 
   const submitNewArticle = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(
-      JSON.stringify({
-        title,
-        authors,
-        source,
-        publication_year: pubYear,
-        doi,
-        claim,
-        evidence,
-        volume,  // Added volume
-        pages,   // Added pages
-      })
-    );
+    const newArticle = {
+      title,
+      authors,
+      source,
+      pubYear,
+      doi,
+      claim,
+      evidence,
+      volume,
+      pages,
+      sePractice, // Include SE Practice field in the submission
+    };
+
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, newArticle);
+      alert("Article submitted successfully");
+    } catch (error) {
+      console.error("Error submitting article:", error);
+      alert("Failed to submit article");
+    }
   };
 
   // Some helper methods for the authors array
@@ -44,7 +54,6 @@ const NewArticle = () => {
     );
   };
 
-  // Return the full form
   return (
     <div className="container">
       <h1>New Article</h1>
@@ -113,15 +122,11 @@ const NewArticle = () => {
           value={pubYear}
           onChange={(event) => {
             const val = event.target.value;
-            if (val === "") {
-              setPubYear(0);
-            } else {
-              setPubYear(parseInt(val));
-            }
+            setPubYear(val === "" ? 0 : parseInt(val));
           }}
         />
 
-        <label htmlFor="volume">Volume:</label> {/* Added volume field */}
+        <label htmlFor="volume">Volume:</label>
         <input
           className={formStyles.formItem}
           type="text"
@@ -133,7 +138,7 @@ const NewArticle = () => {
           }}
         />
 
-        <label htmlFor="pages">Pages:</label> {/* Added pages field */}
+        <label htmlFor="pages">Pages:</label>
         <input
           className={formStyles.formItem}
           type="text"
@@ -157,7 +162,7 @@ const NewArticle = () => {
           }}
         />
 
-        <label htmlFor="claim">Claim:</label> {/* Added claim */}
+        <label htmlFor="claim">Claim:</label>
         <textarea
           className={formStyles.formTextArea}
           name="claim"
@@ -165,13 +170,26 @@ const NewArticle = () => {
           onChange={(event) => setClaim(event.target.value)}
         />
 
-        <label htmlFor="evidence">Evidence:</label> {/* Added evidence */}
+        <label htmlFor="evidence">Evidence:</label>
         <textarea
           className={formStyles.formTextArea}
           name="evidence"
           value={evidence}
           onChange={(event) => setEvidence(event.target.value)}
         />
+
+        <label htmlFor="sePractice">S.E. Practice:</label> {/* Added SE Practice dropdown */}
+        <select
+          className={formStyles.formItem}
+          value={sePractice}
+          onChange={(e) => setSePractice(e.target.value)}
+        >
+          <option value="">Select a practice</option>
+          <option value="TDD">Test Driven Development (TDD)</option>
+          <option value="Agile">Agile Development</option>
+          <option value="CodeReview">Code Review</option>
+          <option value="CI">Continuous Integration (CI)</option>
+        </select>
 
         <button className={formStyles.formItem} type="submit">
           Submit
