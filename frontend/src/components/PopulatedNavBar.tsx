@@ -1,16 +1,12 @@
 // PopulatedNavBar.tsx
-import { useState } from "react";
 import { IoMdArrowDropdown } from "react-icons/io";
 import NavBar from "./nav/NavBar";
 import NavDropDown from "./nav/NavDropDown";
 import NavItem from "./nav/NavItem";
+import { useAuth } from "../context/authContext"; // Import the Auth context
 
 const PopulatedNavBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
-
-  const handleLogout = () => {
-    setIsLoggedIn(false); // Set logout state
-  };
+  const { isLoggedIn, logout } = useAuth(); // Get login state and logout function from context
 
   return (
     <NavBar>
@@ -30,7 +26,7 @@ const PopulatedNavBar = () => {
           Login
         </NavItem>
       ) : (
-        <NavItem onClick={handleLogout} end style={{ marginLeft: "auto" }}>
+        <NavItem onClick={logout} end style={{ marginLeft: "auto" }}>
           Logout
         </NavItem>
       )}

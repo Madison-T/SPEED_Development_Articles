@@ -1,12 +1,14 @@
 // pages/login.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useAuth } from "../context/authContext"; // Import the Auth context
 import formStyles from "../styles/Form.module.scss";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState("User"); // Default user type
+  const { login } = useAuth(); // Get the login function from context
   const router = useRouter();
 
   const handleLogin = (event: React.FormEvent) => {
@@ -17,7 +19,10 @@ const LoginPage = () => {
       return;
     }
 
-    // Handle login logic here (for now just redirect based on userType)
+    // Handle login state
+    login(); // Set the user as logged in
+
+    // Redirect based on userType
     switch (userType) {
       case "User":
         router.push("/user-dashboard");
