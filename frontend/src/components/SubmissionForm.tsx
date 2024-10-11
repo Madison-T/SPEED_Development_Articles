@@ -6,6 +6,7 @@ import axios from "axios";
 export default function SubmissionForm() {
   const { register, handleSubmit, reset } = useForm();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, data);
