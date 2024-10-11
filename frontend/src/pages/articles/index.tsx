@@ -44,7 +44,7 @@ const Articles: NextPage<ArticlesProps> = ({ articles }) => {
 // Fetch articles from the backend
 export const getServerSideProps: GetStaticProps<ArticlesProps> = async () => {
   try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/articles`);
+    const res = await axios.get(`${process.env.BACKEND_URL}/api/articles`);
     const articles = res.data;
 
     return {
