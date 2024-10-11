@@ -31,7 +31,7 @@ const NewArticle = () => {
     };
 
     try {
-      await axios.post(`${process.env.BACKEND_URL_URL}/api/articles`, newArticle);
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, newArticle);
       alert("Article submitted successfully");
     } catch (error) {
       console.error("Error submitting article:", error);
