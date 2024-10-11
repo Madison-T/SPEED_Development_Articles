@@ -1,4 +1,3 @@
-// pages/login.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/authContext"; // Import the Auth context
@@ -20,21 +19,17 @@ const LoginPage = () => {
     }
 
     // Handle login state
-    login(); // Set the user as logged in
+    login(userType); // Pass userType to set user role
 
     // Redirect based on userType
     switch (userType) {
       case "User":
-        router.push("/user-dashboard");
+        router.push("/search"); // Redirect User to search page
         break;
       case "Moderator":
-        router.push("/moderator-dashboard");
-        break;
       case "Analyst":
-        router.push("/analyst-dashboard");
-        break;
       case "Admin":
-        router.push("/admin-dashboard");
+        router.push(`/${userType.toLowerCase()}-dashboard`); // Redirect to the respective dashboard
         break;
       default:
         break;
