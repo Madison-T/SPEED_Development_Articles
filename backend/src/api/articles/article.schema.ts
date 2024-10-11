@@ -1,3 +1,4 @@
+// src/api/articles/article.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
@@ -9,7 +10,7 @@ export class Article {
   title: string;
 
   @Prop({ required: true })
-  authors: string[];  // Changed to array for multiple authors
+  authors: string[];
 
   @Prop({ required: true })
   source: string;
@@ -21,16 +22,19 @@ export class Article {
   doi: string;
 
   @Prop()
-  volume: string;  // Optional, no required constraint
+  volume: string;
 
   @Prop()
-  page: string;   
+  page: string;
 
   @Prop()
   claim: string;
 
   @Prop()
   evidence: string;
+
+  @Prop({ required: true }) // Added SE Practice field
+  sePractice: string;
 
   @Prop({ type: Date, default: Date.now })
   created_at: Date;

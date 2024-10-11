@@ -1,3 +1,4 @@
+// src/pages/articles/index.tsx
 import { GetStaticProps, NextPage } from "next";
 import SortableTable from "../../components/table/SortableTable";
 import axios from "axios";
@@ -5,14 +6,15 @@ import axios from "axios";
 interface ArticlesInterface {
   id: string;
   title: string;
-  authors: string;
+  authors: string[];
   source: string;
-  pubyear: string;
+  pubYear: string;
   doi: string;
   claim: string;
   evidence: string;
-  volume: string;   // Added volume
-  pages: string;    // Added pages
+  volume: string;
+  pages: string;
+  sePractice: string; // Added SE Practice field
 }
 
 type ArticlesProps = {
@@ -24,12 +26,13 @@ const Articles: NextPage<ArticlesProps> = ({ articles }) => {
     { key: "title", label: "Title" },
     { key: "authors", label: "Authors" },
     { key: "source", label: "Source" },
-    { key: "pubyear", label: "Publication Year" },
-    { key: "volume", label: "Volume" },    // Added volume
-    { key: "pages", label: "Pages" },      // Added pages
+    { key: "pubYear", label: "Publication Year" },
+    { key: "volume", label: "Volume" },
+    { key: "pages", label: "Pages" },
     { key: "doi", label: "DOI" },
     { key: "claim", label: "Claim" },
     { key: "evidence", label: "Evidence" },
+    { key: "sePractice", label: "S.E. Practice" }, // Added S.E. Practice column
   ];
 
   return (
@@ -42,9 +45,9 @@ const Articles: NextPage<ArticlesProps> = ({ articles }) => {
 };
 
 // Fetch articles from the backend
-export const getServerSideProps: GetStaticProps<ArticlesProps> = async () => {
+export const getStaticProps: GetStaticProps<ArticlesProps> = async () => {
   try {
-    const res = await axios.get(`${process.env.BACKEND_URL}/api/articles`);
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`);
     const articles = res.data;
 
     return {

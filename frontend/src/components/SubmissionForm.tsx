@@ -1,12 +1,20 @@
+// src/components/SubmissionForm.tsx
 import React from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 export default function SubmissionForm() {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (data: any) => {
-    console.log(JSON.stringify(data));
+  const onSubmit = async (data: any) => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, data);
+      alert("Article submitted successfully!");
+      reset(); // Clear the form after successful submission
+    } catch (error) {
+      console.error("Error submitting article:", error);
+      alert("Failed to submit article");
+    }
   };
 
   return (
@@ -23,7 +31,7 @@ export default function SubmissionForm() {
       </p>
       <p>
         {/* Publication Year Field */}
-        <input {...register("pubyear")} placeholder="Publication Year" type="number" />
+        <input {...register("pubYear")} placeholder="Publication Year" type="number" />
       </p>
       <p>
         {/* Volume Field */}
@@ -45,7 +53,20 @@ export default function SubmissionForm() {
         {/* Evidence Field */}
         <textarea {...register("evidence")} placeholder="Evidence" />
       </p>
-      <input type="submit" />
+      <p>
+        {/* SE Practice Dropdown */}
+        <label htmlFor="sePractice">S.E. Practice</label>
+        <select {...register("sePractice")}>
+          <option value="">Select a practice</option>
+          <option value="TDD">Test Driven Development (TDD)</option>
+          <option value="Agile">Agile Development</option>
+          <option value="CodeReview">Code Review</option>
+          <option value="CI">Continuous Integration (CI)</option>
+        </select>
+      </p>
+
+      <input type="submit" value="Submit" />
     </form>
   );
 }
+
