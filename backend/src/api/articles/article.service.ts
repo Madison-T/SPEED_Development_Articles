@@ -19,6 +19,11 @@ export class ArticleService {
     return await this.articleModel.find().exec();
   }
 
+  // Get articles filtered by SE practice
+  async findBySePractice(sePractice: string): Promise<Article[]> {
+    return await this.articleModel.find({ sePractice }).exec();
+  }
+
   // Get one article by ID
   async findOne(id: string): Promise<Article> {
     return await this.articleModel.findById(id).exec();

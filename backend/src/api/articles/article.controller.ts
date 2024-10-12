@@ -9,10 +9,10 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './create-article.dto';
-import { error } from 'console';
 
 @Controller('api/articles')
 export class ArticleController {
@@ -24,12 +24,15 @@ export class ArticleController {
     return this.articleService.test();
   }
 
-  // Get all articles
+  // Get all articles, with optional filter by SE practice
   @Get('/')
-  async findAll() {
+  async findAll(@Query('sePractice') sePractice?: string) {
     try {
-      return this.articleService.findAll();
-    } catch {
+      if (sePractice) {
+        return await this.articleService.findBySePractice(sePractice);
+      }
+      return await this.articleService.findAll();
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -41,12 +44,12 @@ export class ArticleController {
     }
   }
 
-  // Get one article via id
+  // Get one article by id
   @Get('/:id')
   async findOne(@Param('id') id: string) {
     try {
-      return this.articleService.findOne(id);
-    } catch {
+      return await this.articleService.findOne(id);
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -64,7 +67,7 @@ export class ArticleController {
     try {
       await this.articleService.create(createArticleDto);
       return { message: 'Article added successfully' };
-    } catch {
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -85,7 +88,7 @@ export class ArticleController {
     try {
       await this.articleService.update(id, createArticleDto);
       return { message: 'Article updated successfully' };
-    } catch {
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -97,12 +100,12 @@ export class ArticleController {
     }
   }
 
-  // Delete an article via id
+  // Delete an article by id
   @Delete('/:id')
   async deleteArticle(@Param('id') id: string) {
     try {
       return await this.articleService.delete(id);
-    } catch {
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
