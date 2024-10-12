@@ -1,5 +1,5 @@
 // src/pages/search.tsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import SortableTable from "../components/table/SortableTable";
 import formStyles from "../styles/Form.module.scss";
