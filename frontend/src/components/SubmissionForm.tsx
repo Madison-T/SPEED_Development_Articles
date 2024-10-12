@@ -51,8 +51,8 @@ export default function SubmissionForm() {
         <textarea {...register("claim")} placeholder="Claim" />
       </p>
       <p>
-        {/* Evidence Field */}
-        <textarea {...register("evidence")} placeholder="Evidence" />
+        {/* evidenceStrengthStrength Field */}
+        <textarea {...register("evidenceStrengthStrength")} placeholder="evidenceStrengthStrength" />
       </p>
       <p>
         {/* SE Practice Dropdown */}

@@ -11,9 +11,9 @@ interface ArticlesInterface {
   pubYear: string;
   doi: string;
   claim: string;
-  evidence: string;
   volume: string;
   pages: string;
+  evidenceStrength: string;
   sePractice: string; // Added SE Practice field
 }
 
@@ -31,7 +31,7 @@ const Articles: NextPage<ArticlesProps> = ({ articles }) => {
     { key: "pages", label: "Pages" },
     { key: "doi", label: "DOI" },
     { key: "claim", label: "Claim" },
-    { key: "evidence", label: "Evidence" },
+    { key: "evidenceStrength", label: "Evidence Strength" },
     { key: "sePractice", label: "S.E. Practice" }, // Added S.E. Practice column
   ];
 

@@ -8,6 +8,6 @@ export class CreateArticleDto {
   volume: string;
   page: string;
   claim: string;
-  evidence: string;
+  evidenceStrengthStrength: string;
   sePractice: string; // Added SE Practice field
 }
