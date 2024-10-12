@@ -1,5 +1,5 @@
 // src/pages/articles/index.tsx
-import { GetStaticProps, NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import SortableTable from "../../components/table/SortableTable";
 import axios from "axios";
 
@@ -44,9 +44,12 @@ const Articles: NextPage<ArticlesProps> = ({ articles }) => {
   );
 };
 
-// Fetch articles from the backend
-export const getStaticProps: GetStaticProps<ArticlesProps> = async () => {
+// Fetch articles from the backend (Server-Side)
+export const getServerSideProps: GetServerSideProps<ArticlesProps> = async () => {
   try {
+    // Log the backend URL for debugging
+    console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
+    
     const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`);
     const articles = res.data;
 
