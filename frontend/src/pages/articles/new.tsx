@@ -10,7 +10,7 @@ const NewArticle = () => {
   const [pubYear, setPubYear] = useState<number>(0);
   const [doi, setDoi] = useState("");
   const [claim, setClaim] = useState("");
-  const [evidence, setEvidence] = useState("");
+  const [evidenceStrength, setEvidenceStrength] = useState(""); // Changed to dropdown for evidence strength
   const [volume, setVolume] = useState("");
   const [pages, setPages] = useState("");
   const [sePractice, setSePractice] = useState(""); // Added SE Practice field
@@ -24,7 +24,7 @@ const NewArticle = () => {
       pubYear,
       doi,
       claim,
-      evidence,
+      evidenceStrength, // Updated evidenceStrength field
       volume,
       pages,
       sePractice, // Include SE Practice field in the submission
@@ -170,13 +170,17 @@ const NewArticle = () => {
           onChange={(event) => setClaim(event.target.value)}
         />
 
-        <label htmlFor="evidence">Evidence:</label>
-        <textarea
-          className={formStyles.formTextArea}
-          name="evidence"
-          value={evidence}
-          onChange={(event) => setEvidence(event.target.value)}
-        />
+        <label htmlFor="evidenceStrength">Evidence Strength:</label> {/* Added Evidence Strength dropdown */}
+        <select
+          className={formStyles.formItem}
+          value={evidenceStrength}
+          onChange={(e) => setEvidenceStrength(e.target.value)}
+        >
+          <option value="">Select evidence strength</option>
+          <option value="Strong">Strong</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Weak">Weak</option>
+        </select>
 
         <label htmlFor="sePractice">S.E. Practice:</label> {/* Added SE Practice dropdown */}
         <select

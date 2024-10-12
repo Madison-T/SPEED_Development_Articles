@@ -51,8 +51,15 @@ export default function SubmissionForm() {
         <textarea {...register("claim")} placeholder="Claim" />
       </p>
       <p>
-        {/* Evidence Field */}
-        <textarea {...register("evidence")} placeholder="Evidence" />
+        {/* evidenceStrength Field */}
+        {/* SE Practice Dropdown */}
+        <label htmlFor="evidenceStrength">Evidence Strength</label>
+        <select {...register("evidenceStrength")}>
+          <option value="">Select Evidence Strength</option>
+          <option value="Strong">Strong</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Weak">Weak</option>
+        </select>
       </p>
       <p>
         {/* SE Practice Dropdown */}
