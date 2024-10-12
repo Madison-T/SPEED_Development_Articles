@@ -31,7 +31,7 @@ export class Article {
   claim: string;
 
   @Prop({required: true})
-  evidenceStrengthStrength: string;
+  evidenceStrength: string;
 
   @Prop({ required: true }) // Added SE Practice field
   sePractice: string;
