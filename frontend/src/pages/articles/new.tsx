@@ -73,7 +73,7 @@ const NewArticle = () => {
         <label htmlFor="author">Authors:</label>
         {authors.map((author, index) => {
           return (
-            <div key={`author ${index}`} className={formStyles.arrayItem}>
+            <div key={`author_${index}`} className={formStyles.arrayItem}>
               <input
                 type="text"
                 name="author"
@@ -170,7 +170,7 @@ const NewArticle = () => {
           onChange={(event) => setClaim(event.target.value)}
         />
 
-        <label htmlFor="evidenceStrength">Evidence Strength:</label> {/* Added Evidence Strength dropdown */}
+        <label htmlFor="evidenceStrength">Evidence Strength:</label>
         <select
           className={formStyles.formItem}
           value={evidenceStrength}
@@ -182,7 +182,7 @@ const NewArticle = () => {
           <option value="Weak">Weak</option>
         </select>
 
-        <label htmlFor="sePractice">S.E. Practice:</label> {/* Added SE Practice dropdown */}
+        <label htmlFor="sePractice">S.E. Practice:</label>
         <select
           className={formStyles.formItem}
           value={sePractice}
