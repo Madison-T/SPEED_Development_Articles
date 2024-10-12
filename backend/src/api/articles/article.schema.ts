@@ -27,7 +27,7 @@ export class Article {
   @Prop()
   page: string;
 
-  @Prop()
+  @Prop({required: true})
   claim: string;
 
   @Prop({required: true})
