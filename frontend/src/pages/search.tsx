@@ -32,7 +32,6 @@ const SearchPage = () => {
     evidenceStrength: "",
   });
 
-  const [sortKey, setSortKey] = useState<keyof ArticlesInterface | "">("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
