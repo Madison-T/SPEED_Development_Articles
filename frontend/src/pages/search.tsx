@@ -1,8 +1,10 @@
-// src/pages/search.tsx
 import { useState, ChangeEvent } from "react";
 import axios from "axios";
 import SortableTable from "../components/table/SortableTable";
 import formStyles from "../styles/Form.module.scss";
+
+// Define type for evidenceStrength
+type EvidenceStrength = "Strong" | "Moderate" | "Weak";
 
 interface ArticlesInterface {
   id: string;
@@ -14,9 +16,16 @@ interface ArticlesInterface {
   claim: string;
   volume: string;
   pages: string;
-  evidenceStrength: string;
+  evidenceStrength: EvidenceStrength;
   sePractice: string;
 }
+
+// Map for custom sorting of evidenceStrength
+const strengthOrder: Record<EvidenceStrength, number> = {
+  Strong: 3,
+  Moderate: 2,
+  Weak: 1,
+};
 
 const SearchPage = () => {
   const [selectedPractice, setSelectedPractice] = useState<string>("");
@@ -26,7 +35,7 @@ const SearchPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [filters, setFilters] = useState({
-    author: "",
+    authors: "",
     pubYear: "",
     doi: "",
     claim: "",
@@ -34,6 +43,7 @@ const SearchPage = () => {
   });
 
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortKey, setSortKey] = useState<keyof ArticlesInterface | "">("");
 
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -42,9 +52,9 @@ const SearchPage = () => {
   const applyFilters = () => {
     let filtered = articles;
 
-    if (filters.author) {
+    if (filters.authors) {
       filtered = filtered.filter(article =>
-        article.authors.some(author => author.toLowerCase().includes(filters.author.toLowerCase()))
+        article.authors.some(author => author.toLowerCase().includes(filters.authors.toLowerCase()))
       );
     }
     if (filters.pubYear) {
@@ -62,7 +72,7 @@ const SearchPage = () => {
       filtered = filtered.filter(article => article.evidenceStrength === filters.evidenceStrength);
     }
 
-    setFilteredArticles(filtered);
+    setFilteredArticles(applySort(filtered));
   };
 
   const handleSearch = async () => {
@@ -74,7 +84,7 @@ const SearchPage = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?sePractice=${selectedPractice}`
       );
       setArticles(res.data);
-      setFilteredArticles(res.data);
+      setFilteredArticles(applySort(res.data));
 
       if (res.data.length === 0) {
         setErrorMessage("No articles found.");
@@ -88,16 +98,29 @@ const SearchPage = () => {
   };
 
   const handleSort = (key: keyof ArticlesInterface) => {
-    const sorted = [...filteredArticles].sort((a, b) => {
-      if (a[key] < b[key]) return sortOrder === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    });
-    setFilteredArticles(sorted);
+    setSortKey(key);
+    setFilteredArticles(applySort(filteredArticles));
   };
 
   const toggleSortOrder = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    setFilteredArticles(applySort(filteredArticles));
+  };
+
+  const applySort = (data: ArticlesInterface[]) => {
+    if (!sortKey) return data;
+
+    return [...data].sort((a, b) => {
+      if (sortKey === "evidenceStrength") {
+        return sortOrder === "asc"
+          ? strengthOrder[a.evidenceStrength] - strengthOrder[b.evidenceStrength]
+          : strengthOrder[b.evidenceStrength] - strengthOrder[a.evidenceStrength];
+      }
+
+      if (a[sortKey] < b[sortKey]) return sortOrder === "asc" ? -1 : 1;
+      if (a[sortKey] > b[sortKey]) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
   };
 
   const headers: { key: keyof ArticlesInterface; label: string }[] = [
@@ -115,7 +138,6 @@ const SearchPage = () => {
     <div className="container">
       <h1>Search for Software Engineering Practices</h1>
 
-      {/* SE Practices Dropdown */}
       <div className={formStyles.formItem}>
         <label htmlFor="sePractice">Select a Software Engineering Practice:</label>
         <select
@@ -139,20 +161,18 @@ const SearchPage = () => {
         Search
       </button>
 
-      {/* Error or Loading State */}
       {loading && <p>Loading...</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      {/* Filter Section */}
       {articles.length > 0 && (
         <div className="filters">
           <h2>Filter Results</h2>
           <input
             className={formStyles.formItem}
             type="text"
-            name="author"
-            placeholder="Filter by Author"
-            value={filters.author}
+            name="authors"
+            placeholder="Filter by Authors"
+            value={filters.authors}
             onChange={handleFilterChange}
           />
           <input
@@ -196,7 +216,6 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Sorting Section */}
       {filteredArticles.length > 0 && (
         <div className="sorting">
           <h2>Sort Results</h2>
@@ -215,7 +234,6 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Articles Table */}
       {filteredArticles.length > 0 && (
         <SortableTable headers={headers} data={filteredArticles} />
       )}
@@ -224,4 +242,3 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
-
