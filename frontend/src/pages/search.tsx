@@ -1,4 +1,3 @@
-// src/pages/search.tsx
 import { useState, ChangeEvent } from "react";
 import axios from "axios";
 import SortableTable from "../components/table/SortableTable";
