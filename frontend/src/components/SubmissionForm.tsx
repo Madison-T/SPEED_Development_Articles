@@ -27,8 +27,8 @@ export default function SubmissionForm() {
         <input {...register("authors")} placeholder="Authors (comma separated)" />
       </p>
       <p>
-        {/* Source Field */}
-        <input {...register("source")} placeholder="Source" />
+        {/* journal Field */}
+        <input {...register("journal")} placeholder="journal" />
       </p>
       <p>
         {/* Publication Year Field */}

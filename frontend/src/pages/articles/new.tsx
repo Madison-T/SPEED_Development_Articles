@@ -6,7 +6,7 @@ import axios from "axios";
 const NewArticle = () => {
   const [title, setTitle] = useState("");
   const [authors, setAuthors] = useState<string[]>([]);
-  const [source, setSource] = useState("");
+  const [journal, setjournal] = useState("");
   const [pubYear, setPubYear] = useState<number>(0);
   const [doi, setDoi] = useState("");
   const [claim, setClaim] = useState("");
@@ -20,7 +20,7 @@ const NewArticle = () => {
     const newArticle = {
       title,
       authors,
-      source,
+      journal,
       pubYear,
       doi,
       claim,
@@ -101,15 +101,15 @@ const NewArticle = () => {
           +
         </button>
 
-        <label htmlFor="source">Source:</label>
+        <label htmlFor="journal">journal:</label>
         <input
           className={formStyles.formItem}
           type="text"
-          name="source"
-          id="source"
-          value={source}
+          name="journal"
+          id="journal"
+          value={journal}
           onChange={(event) => {
-            setSource(event.target.value);
+            setjournal(event.target.value);
           }}
         />
 

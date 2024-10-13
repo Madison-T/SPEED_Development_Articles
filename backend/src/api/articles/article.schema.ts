@@ -13,7 +13,7 @@ export class Article {
   authors: string[];
 
   @Prop({ required: true })
-  source: string;
+  journal: string;
 
   @Prop({ required: true })
   pubYear: number;

@@ -2,7 +2,7 @@
 export class CreateArticleDto {
   title: string;
   authors: string[];
-  source: string;
+  journal: string;
   pubYear: number;
   doi: string;
   volume: string;
