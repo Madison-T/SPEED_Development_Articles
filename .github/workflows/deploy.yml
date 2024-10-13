@@ -7,9 +7,9 @@ on:
       - closed
 
 env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}  # Make sure the Vercel token is stored in GitHub Secrets
 
 jobs:
   Test:
@@ -24,22 +24,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Use the appropriate version of Node.js for your project
-
-      - name: Install dependencies
-        run: npm install
+          node-version: '16'  # Adjust based on your project needs
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@canary
+        run: npm install --global vercel@latest
 
-      - name: Pull Vercel environment information
-        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+      - name: Pull Vercel Environment Variables
+        run: vercel env pull .env.local --yes --token=$VERCEL_TOKEN
 
-      - name: Build project artifacts
-        run: vercel build --prod --token=$VERCEL_TOKEN
+      - name: Load Environment Variables
+        run: |
+          if [ -f ".env.local" ]; then
+            export $(grep -v '^#' .env.local | xargs);
+          fi
 
-      - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+      - name: Build Project
+        run: npm run build
+
+      - name: Deploy to Vercel Production
+        run: vercel deploy --prod --token=$VERCEL_TOKEN --confirm
