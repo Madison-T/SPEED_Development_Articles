@@ -1,180 +1,164 @@
-// src/pages/articles/new.tsx
-import { FormEvent, useState } from "react";
+import { useEffect, useState, FormEvent } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "../../context/authContext"; // Import Auth context
 import formStyles from "../../styles/Form.module.scss";
 import axios from "axios";
 
-const NewArticle = () => {
+const SubmitNewPage = () => {
+  const { isLoggedIn, userType } = useAuth(); // Get login state and role
+  const router = useRouter();
+
+  // Access control: Only allow 'User' or 'Admin' roles
+  useEffect(() => {
+    if (!isLoggedIn || (userType !== "User" && userType !== "Admin")) {
+      router.push("/access-denied"); // Redirect to Access Denied
+    }
+  }, [isLoggedIn, userType]);
+
   const [title, setTitle] = useState("");
-  const [authors, setAuthors] = useState<string[]>([]);
+  const [authors, setAuthors] = useState<string[]>([""]);
   const [source, setSource] = useState("");
-  const [pubYear, setPubYear] = useState<number>(0);
+  const [pubYear, setPubYear] = useState<number | "">("");
   const [doi, setDoi] = useState("");
   const [claim, setClaim] = useState("");
-  const [evidenceStrength, setEvidenceStrength] = useState(""); // Changed to dropdown for evidence strength
+  const [evidenceStrength, setEvidenceStrength] = useState("");
+  const [sePractice, setSePractice] = useState("");
   const [volume, setVolume] = useState("");
   const [pages, setPages] = useState("");
-  const [sePractice, setSePractice] = useState(""); // Added SE Practice field
 
-  const submitNewArticle = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newArticle = {
       title,
       authors,
       source,
-      pubYear,
+      pubYear: Number(pubYear),
       doi,
       claim,
-      evidenceStrength, // Updated evidenceStrength field
+      evidenceStrength,
+      sePractice,
       volume,
       pages,
-      sePractice, // Include SE Practice field in the submission
     };
 
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, newArticle);
       alert("Article submitted successfully");
+      router.push("/articles"); // Redirect to articles page after submission
     } catch (error) {
       console.error("Error submitting article:", error);
       alert("Failed to submit article");
     }
   };
 
-  // Some helper methods for the authors array
-  const addAuthor = () => {
-    setAuthors(authors.concat([""]));
-  };
-  const removeAuthor = (index: number) => {
-    setAuthors(authors.filter((_, i) => i !== index));
-  };
-  const changeAuthor = (index: number, value: string) => {
-    setAuthors(
-      authors.map((oldValue, i) => {
-        return index === i ? value : oldValue;
-      })
-    );
-  };
+  const addAuthor = () => setAuthors([...authors, ""]);
+  const removeAuthor = (index: number) => setAuthors(authors.filter((_, i) => i !== index));
+  const updateAuthor = (index: number, value: string) =>
+    setAuthors(authors.map((author, i) => (i === index ? value : author)));
 
   return (
     <div className="container">
-      <h1>New Article</h1>
-      <form className={formStyles.form} onSubmit={submitNewArticle}>
+      <h1>Submit New Article</h1>
+      <form className={formStyles.form} onSubmit={handleSubmit}>
         <label htmlFor="title">Title:</label>
         <input
-          className={formStyles.formItem}
           type="text"
-          name="title"
           id="title"
           value={title}
-          onChange={(event) => {
-            setTitle(event.target.value);
-          }}
+          onChange={(e) => setTitle(e.target.value)}
+          className={formStyles.formItem}
+          required
         />
 
-        <label htmlFor="author">Authors:</label>
-        {authors.map((author, index) => {
-          return (
-            <div key={`author_${index}`} className={formStyles.arrayItem}>
-              <input
-                type="text"
-                name="author"
-                value={author}
-                onChange={(event) => changeAuthor(index, event.target.value)}
-                className={formStyles.formItem}
-              />
-              <button
-                onClick={() => removeAuthor(index)}
-                className={formStyles.buttonItem}
-                style={{ marginLeft: "3rem" }}
-                type="button"
-              >
-                -
-              </button>
-            </div>
-          );
-        })}
-        <button
-          onClick={() => addAuthor()}
-          className={formStyles.buttonItem}
-          style={{ marginLeft: "auto" }}
-          type="button"
-        >
+        <label>Authors:</label>
+        {authors.map((author, index) => (
+          <div key={index} className={formStyles.arrayItem}>
+            <input
+              type="text"
+              value={author}
+              onChange={(e) => updateAuthor(index, e.target.value)}
+              className={formStyles.formItem}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => removeAuthor(index)}
+              className={formStyles.buttonItem}
+            >
+              -
+            </button>
+          </div>
+        ))}
+        <button type="button" onClick={addAuthor} className={formStyles.buttonItem}>
           +
         </button>
 
         <label htmlFor="source">Source:</label>
         <input
-          className={formStyles.formItem}
           type="text"
-          name="source"
           id="source"
           value={source}
-          onChange={(event) => {
-            setSource(event.target.value);
-          }}
+          onChange={(e) => setSource(e.target.value)}
+          className={formStyles.formItem}
+          required
         />
 
         <label htmlFor="pubYear">Publication Year:</label>
         <input
-          className={formStyles.formItem}
           type="number"
-          name="pubYear"
           id="pubYear"
           value={pubYear}
-          onChange={(event) => {
-            const val = event.target.value;
-            setPubYear(val === "" ? 0 : parseInt(val));
-          }}
+          onChange={(e) => setPubYear(e.target.value ? parseInt(e.target.value) : "")}
+          className={formStyles.formItem}
+          min="1900"
+          max={new Date().getFullYear()}
+          required
         />
 
         <label htmlFor="volume">Volume:</label>
         <input
-          className={formStyles.formItem}
           type="text"
-          name="volume"
           id="volume"
           value={volume}
-          onChange={(event) => {
-            setVolume(event.target.value);
-          }}
+          onChange={(e) => setVolume(e.target.value)}
+          className={formStyles.formItem}
         />
 
         <label htmlFor="pages">Pages:</label>
         <input
-          className={formStyles.formItem}
           type="text"
-          name="pages"
           id="pages"
           value={pages}
-          onChange={(event) => {
-            setPages(event.target.value);
-          }}
+          onChange={(e) => setPages(e.target.value)}
+          className={formStyles.formItem}
         />
 
         <label htmlFor="doi">DOI:</label>
         <input
-          className={formStyles.formItem}
           type="text"
-          name="doi"
           id="doi"
           value={doi}
-          onChange={(event) => {
-            setDoi(event.target.value);
-          }}
+          onChange={(e) => setDoi(e.target.value)}
+          className={formStyles.formItem}
+          required
         />
 
         <label htmlFor="claim">Claim:</label>
         <textarea
-          className={formStyles.formTextArea}
-          name="claim"
+          id="claim"
           value={claim}
-          onChange={(event) => setClaim(event.target.value)}
+          onChange={(e) => setClaim(e.target.value)}
+          className={formStyles.formItem}
+          required
         />
 
         <label htmlFor="evidenceStrength">Evidence Strength:</label>
         <select
-          className={formStyles.formItem}
+          id="evidenceStrength"
           value={evidenceStrength}
           onChange={(e) => setEvidenceStrength(e.target.value)}
+          className={formStyles.formItem}
+          required
         >
           <option value="">Select evidence strength</option>
           <option value="Strong">Strong</option>
@@ -184,9 +168,11 @@ const NewArticle = () => {
 
         <label htmlFor="sePractice">S.E. Practice:</label>
         <select
-          className={formStyles.formItem}
+          id="sePractice"
           value={sePractice}
           onChange={(e) => setSePractice(e.target.value)}
+          className={formStyles.formItem}
+          required
         >
           <option value="">Select a practice</option>
           <option value="TDD">Test Driven Development (TDD)</option>
@@ -195,7 +181,7 @@ const NewArticle = () => {
           <option value="CI">Continuous Integration (CI)</option>
         </select>
 
-        <button className={formStyles.formItem} type="submit">
+        <button type="submit" className={formStyles.formItem}>
           Submit
         </button>
       </form>
@@ -203,4 +189,4 @@ const NewArticle = () => {
   );
 };
 
-export default NewArticle;
+export default SubmitNewPage;
