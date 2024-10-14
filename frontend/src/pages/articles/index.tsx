@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../../context/authContext"; // Import Auth context
 import SortableTable from "../../components/table/SortableTable";
@@ -25,13 +25,21 @@ type ArticlesProps = {
 const ViewArticlesPage = ({ articles }: ArticlesProps) => {
   const { isLoggedIn, userType } = useAuth(); // Get login state and role
   const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false); // Track if auth state is checked
 
-  // Allow only 'User' or 'Admin' roles
   useEffect(() => {
+    // Wait for the authentication state to load before deciding on redirection
     if (!isLoggedIn || (userType !== "User" && userType !== "Admin")) {
       router.push("/access-denied"); // Redirect to Access Denied page
+    } else {
+      setAuthChecked(true); // Mark authentication as checked
     }
-  }, [isLoggedIn, userType]);
+  }, [isLoggedIn, userType, router]);
+
+  // Render only after authentication check is completed
+  if (!authChecked) {
+    return <p>Loading...</p>; // Optional: Add a loading indicator
+  }
 
   return (
     <div className="container">
