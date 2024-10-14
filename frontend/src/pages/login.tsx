@@ -27,9 +27,13 @@ const LoginPage = () => {
         router.push("/search"); // Redirect User to search page
         break;
       case "Moderator":
+        router.push("/moderation-queue"); // Redirect Moderator to Moderation queue page
+        break;
       case "Analyst":
+        router.push("/analysis-queue"); // Redirect analyst to Analysis queue page
+        break;
       case "Admin":
-        router.push(`/${userType.toLowerCase()}-dashboard`); // Redirect to the respective dashboard
+        router.push("/admin-dashboard"); // Redirect to admin to dashboard
         break;
       default:
         break;

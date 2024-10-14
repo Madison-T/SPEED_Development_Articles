@@ -1,5 +1,6 @@
-// src/pages/articles/index.tsx
-import { GetServerSideProps, NextPage } from "next";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "../../context/authContext"; // Import Auth context
 import SortableTable from "../../components/table/SortableTable";
 import axios from "axios";
 
@@ -14,58 +15,53 @@ interface ArticlesInterface {
   volume: string;
   pages: string;
   evidenceStrength: string;
-  sePractice: string; // Added SE Practice field
+  sePractice: string;
 }
 
 type ArticlesProps = {
   articles: ArticlesInterface[];
 };
 
-const Articles: NextPage<ArticlesProps> = ({ articles }) => {
-  const headers: { key: keyof ArticlesInterface; label: string }[] = [
-    { key: "title", label: "Title" },
-    { key: "authors", label: "Authors" },
-    { key: "source", label: "Source" },
-    { key: "pubYear", label: "Publication Year" },
-    { key: "volume", label: "Volume" },
-    { key: "pages", label: "Pages" },
-    { key: "doi", label: "DOI" },
-    { key: "claim", label: "Claim" },
-    { key: "evidenceStrength", label: "Evidence Strength" },
-    { key: "sePractice", label: "S.E. Practice" }, // Added S.E. Practice column
-  ];
+const ViewArticlesPage = ({ articles }: ArticlesProps) => {
+  const { isLoggedIn, userType } = useAuth(); // Get login state and role
+  const router = useRouter();
+
+  // Allow only 'User' or 'Admin' roles
+  useEffect(() => {
+    if (!isLoggedIn || (userType !== "User" && userType !== "Admin")) {
+      router.push("/access-denied"); // Redirect to Access Denied page
+    }
+  }, [isLoggedIn, userType]);
 
   return (
     <div className="container">
-      <h1>Articles Index Page</h1>
-      <p>Page containing a table of articles:</p>
-      <SortableTable headers={headers} data={articles} />
+      <h1>Articles</h1>
+      <SortableTable
+        headers={[
+          { key: "title", label: "Title" },
+          { key: "authors", label: "Authors" },
+          { key: "source", label: "Source" },
+          { key: "pubYear", label: "Publication Year" },
+          { key: "doi", label: "DOI" },
+          { key: "claim", label: "Claim" },
+          { key: "evidenceStrength", label: "Evidence Strength" },
+          { key: "sePractice", label: "S.E. Practice" },
+        ]}
+        data={articles}
+      />
     </div>
   );
 };
 
 // Fetch articles from the backend (Server-Side)
-export const getServerSideProps: GetServerSideProps<ArticlesProps> = async () => {
+export const getServerSideProps = async () => {
   try {
-    // Log the backend URL for debugging
-    console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
-    
     const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`);
-    const articles = res.data;
-
-    return {
-      props: {
-        articles,
-      },
-    };
+    return { props: { articles: res.data } };
   } catch (error) {
     console.error("Error fetching articles:", error);
-    return {
-      props: {
-        articles: [],
-      },
-    };
+    return { props: { articles: [] } };
   }
 };
 
-export default Articles;
+export default ViewArticlesPage;

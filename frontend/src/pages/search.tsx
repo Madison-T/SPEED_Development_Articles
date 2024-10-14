@@ -1,4 +1,6 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "../context/authContext"; // Import Auth context
 import axios from "axios";
 import SortableTable from "../components/table/SortableTable";
 import formStyles from "../styles/Form.module.scss";
@@ -20,7 +22,6 @@ interface ArticlesInterface {
   sePractice: string;
 }
 
-// Map for custom sorting of evidenceStrength
 const strengthOrder: Record<EvidenceStrength, number> = {
   Strong: 3,
   Moderate: 2,
@@ -28,11 +29,15 @@ const strengthOrder: Record<EvidenceStrength, number> = {
 };
 
 const SearchPage = () => {
+  const router = useRouter();
+  const { isLoggedIn, userType } = useAuth(); // Get user authentication and role
+
   const [selectedPractice, setSelectedPractice] = useState<string>("");
   const [articles, setArticles] = useState<ArticlesInterface[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<ArticlesInterface[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isAuthorized, setIsAuthorized] = useState(true); // Manage access control
 
   const [filters, setFilters] = useState({
     authors: "",
@@ -45,6 +50,21 @@ const SearchPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [sortKey, setSortKey] = useState<keyof ArticlesInterface | "">("");
 
+  // Redirect unauthorized users to the search page with an error
+  useEffect(() => {
+    if (!isLoggedIn || !(userType === "User" || userType === "Admin")) {
+      setIsAuthorized(false); // Deny access
+      router.push("/search?error=true");
+    }
+  }, [isLoggedIn, userType]);
+
+  // Check if there's an error message in the query parameters
+  useEffect(() => {
+    if (router.query.error) {
+      setErrorMessage("You are not authorized to access this page.");
+    }
+  }, [router.query]);
+
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
@@ -54,7 +74,9 @@ const SearchPage = () => {
 
     if (filters.authors) {
       filtered = filtered.filter(article =>
-        article.authors.some(author => author.toLowerCase().includes(filters.authors.toLowerCase()))
+        article.authors.some(author =>
+          author.toLowerCase().includes(filters.authors.toLowerCase())
+        )
       );
     }
     if (filters.pubYear) {
@@ -69,7 +91,9 @@ const SearchPage = () => {
       );
     }
     if (filters.evidenceStrength) {
-      filtered = filtered.filter(article => article.evidenceStrength === filters.evidenceStrength);
+      filtered = filtered.filter(
+        article => article.evidenceStrength === filters.evidenceStrength
+      );
     }
 
     setFilteredArticles(applySort(filtered));
@@ -117,9 +141,13 @@ const SearchPage = () => {
           : strengthOrder[b.evidenceStrength] - strengthOrder[a.evidenceStrength];
       }
 
-      if (a[sortKey] < b[sortKey]) return sortOrder === "asc" ? -1 : 1;
-      if (a[sortKey] > b[sortKey]) return sortOrder === "asc" ? 1 : -1;
-      return 0;
+      return sortOrder === "asc"
+        ? a[sortKey] < b[sortKey]
+          ? -1
+          : 1
+        : a[sortKey] > b[sortKey]
+        ? -1
+        : 1;
     });
   };
 
@@ -133,6 +161,15 @@ const SearchPage = () => {
     { key: "evidenceStrength", label: "Evidence Strength" },
     { key: "sePractice", label: "S.E. Practice" },
   ];
+
+  if (!isAuthorized) {
+    return (
+      <div className="container">
+        <h1>Search for Software Engineering Practices</h1>
+        <p style={{ color: "red" }}>{errorMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -164,78 +201,84 @@ const SearchPage = () => {
       {loading && <p>Loading...</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      {articles.length > 0 && (
-        <div className="filters">
-          <h2>Filter Results</h2>
-          <input
-            className={formStyles.formItem}
-            type="text"
-            name="authors"
-            placeholder="Filter by Authors"
-            value={filters.authors}
-            onChange={handleFilterChange}
-          />
-          <input
-            className={formStyles.formItem}
-            type="text"
-            name="pubYear"
-            placeholder="Filter by Publication Year"
-            value={filters.pubYear}
-            onChange={handleFilterChange}
-          />
-          <input
-            className={formStyles.formItem}
-            type="text"
-            name="doi"
-            placeholder="Filter by DOI"
-            value={filters.doi}
-            onChange={handleFilterChange}
-          />
-          <input
-            className={formStyles.formItem}
-            type="text"
-            name="claim"
-            placeholder="Filter by Claim"
-            value={filters.claim}
-            onChange={handleFilterChange}
-          />
-          <select
-            className={formStyles.formItem}
-            name="evidenceStrength"
-            value={filters.evidenceStrength}
-            onChange={handleFilterChange}
-          >
-            <option value="">Filter by Evidence Strength</option>
-            <option value="Strong">Strong</option>
-            <option value="Moderate">Moderate</option>
-            <option value="Weak">Weak</option>
-          </select>
-          <button className={formStyles.formItem} onClick={applyFilters}>
-            Apply Filters
-          </button>
-        </div>
-      )}
-
       {filteredArticles.length > 0 && (
-        <div className="sorting">
-          <h2>Sort Results</h2>
-          <select
-            className={formStyles.formItem}
-            onChange={(e) => handleSort(e.target.value as keyof ArticlesInterface)}
-          >
-            <option value="">Sort by...</option>
-            <option value="title">Title</option>
-            <option value="pubYear">Publication Year</option>
-            <option value="evidenceStrength">Evidence Strength</option>
-          </select>
-          <button className={formStyles.formItem} onClick={toggleSortOrder}>
+        <>
+          <div className="filters">
+            <h2>Filter Results</h2>
+            <input
+              className={formStyles.formItem}
+              type="text"
+              name="authors"
+              placeholder="Filter by Authors"
+              value={filters.authors}
+              onChange={handleFilterChange}
+            />
+            <input
+              className={formStyles.formItem}
+              type="text"
+              name="pubYear"
+              placeholder="Filter by Publication Year"
+              value={filters.pubYear}
+              onChange={handleFilterChange}
+            />
+            <input
+              className={formStyles.formItem}
+              type="text"
+              name="doi"
+              placeholder="Filter by DOI"
+              value={filters.doi}
+              onChange={handleFilterChange}
+            />
+            <input
+              className={formStyles.formItem}
+              type="text"
+              name="claim"
+              placeholder="Filter by Claim"
+              value={filters.claim}
+              onChange={handleFilterChange}
+            />
+            <select
+              className={formStyles.formItem}
+              name="evidenceStrength"
+              value={filters.evidenceStrength}
+              onChange={handleFilterChange}
+            >
+              <option value="">Filter by Evidence Strength</option>
+              <option value="Strong">Strong</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Weak">Weak</option>
+            </select>
+            <button className={formStyles.formItem} onClick={applyFilters}>
+              Apply Filters
+            </button>
+          </div>
+
+          <div className="sorting">
+            <h2>Sort Results</h2>
+            <select
+              className={formStyles.formItem}
+              onChange={(e) => handleSort(e.target.value as keyof ArticlesInterface)}
+            >
+              <option value="">Sort by...</option>
+              <option value="title">Title</option>
+              <option value="pubYear">Publication Year</option>
+              <option value="evidenceStrength">Evidence Strength</option>
+            </select>
+            <button className={formStyles.formItem} onClick={toggleSortOrder}>
             Toggle Order ({sortOrder === "asc" ? "Ascending" : "Descending"})
-          </button>
-        </div>
+            </button>
+          </div>
+
+          <SortableTable headers={headers} data={filteredArticles} />
+        </>
       )}
 
-      {filteredArticles.length > 0 && (
-        <SortableTable headers={headers} data={filteredArticles} />
+      {filteredArticles.length === 0 && articles.length > 0 && (
+        <p>No articles match the applied filters.</p>
+      )}
+
+      {articles.length === 0 && !loading && (
+        <p>No articles found. Please try a different search.</p>
       )}
     </div>
   );
