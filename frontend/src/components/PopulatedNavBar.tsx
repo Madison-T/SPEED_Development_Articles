@@ -44,7 +44,6 @@ const PopulatedNavBar = () => {
         <NavItem dropdown>
           Options <IoMdArrowDropdown />
           <NavDropDown>
-            <NavItem route="/articles">View Articles</NavItem>
             <NavItem route="/articles/new">Submit New</NavItem>
             <NavItem onClick={handleSearchClick}>Search</NavItem>
             <NavItem route="/moderation-queue">Moderation Queue</NavItem>
@@ -58,7 +57,6 @@ const PopulatedNavBar = () => {
         <NavItem dropdown>
           Articles <IoMdArrowDropdown />
           <NavDropDown>
-            <NavItem route="/articles">View Articles</NavItem>
             <NavItem route="/articles/new">Submit New</NavItem>
             <NavItem onClick={handleSearchClick}>Search</NavItem>
           </NavDropDown>
